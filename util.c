@@ -823,11 +823,11 @@ bool hash_target_check_v(const unsigned char *hash, const unsigned char *target)
 		bin2hex(hash_str, hash_swap, 32);
 		bin2hex(target_str, target_swap, 32);
 
-		applog(LOG_DEBUG, " Proof: %s\nTarget: %s\nTrgVal? %s",
-			hash_str,
-			target_str,
-			rc ? "YES (hash <= target)" :
-			     "no (false positive; hash > target)");
+		//applog(LOG_DEBUG, " Proof: %s\nTarget: %s\nTrgVal? %s",
+		//	hash_str,
+		//	target_str,
+		//	rc ? "YES (hash <= target)" :
+		//	     "no (false positive; hash > target)");
 	}
 
 	return rc;

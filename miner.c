@@ -4371,7 +4371,7 @@ out:
 		}
 		pool_tclear(pool, &pool->idle);
 	}
-	applog(LOG_DEBUG, "Selecting pool %d for work", pool->pool_no);
+	//applog(LOG_DEBUG, "Selecting pool %d for work", pool->pool_no);
 	return pool;
 }
 
@@ -5534,7 +5534,7 @@ next_write_sws_del:
 			if (likely(stratum_send(pool, s, strlen(s)))) {
 				if (pool_tclear(pool, &pool->submit_fail))
 					applog(LOG_WARNING, "Pool %d communication resumed, submitting work", pool->pool_no);
-				applog(LOG_DEBUG, "Successfully submitted, adding to stratum_shares db");
+				//applog(LOG_DEBUG, "Successfully submitted, adding to stratum_shares db");
 				goto next_write_sws_del;
 			} else if (!pool_tset(pool, &pool->submit_fail)) {
 				// Undo stuff
@@ -6131,8 +6131,8 @@ static bool hash_push(struct work *work)
 
 static void stage_work(struct work *work)
 {
-	applog(LOG_DEBUG, "Pushing work %d from pool %d to hash queue",
-	       work->id, work->pool->pool_no);
+	//applog(LOG_DEBUG, "Pushing work %d from pool %d to hash queue",
+	      // work->id, work->pool->pool_no);
 	work->work_restart_id = work->pool->work_restart_id;
 	work->pool->last_work_time = time(NULL);
 	cgtime(&work->pool->tv_last_work_time);
@@ -7507,8 +7507,8 @@ static void hashmeter(int thr_id, struct timeval *diff,
 		double thread_rolling = 0.0;
 		int i;
 
-		applog(LOG_DEBUG, "[thread %d: %"PRIu64" hashes, %.1f khash/sec]",
-			thr_id, hashes_done, hashes_done / 1000 / secs);
+		//applog(LOG_DEBUG, "[thread %d: %"PRIu64" hashes, %.1f khash/sec]",
+		//	thr_id, hashes_done, hashes_done / 1000 / secs);
 
 		/* Rolling average for each thread and each device */
 		decay_time(&thr->rolling, local_mhashes / secs, secs);
@@ -8120,7 +8120,7 @@ static void *stratum_thread(void *userdata)
 		stratum_resumed(pool);
 
 		if (!parse_method(pool, s) && !parse_stratum_response(pool, s))
-			applog(LOG_INFO, "Unknown stratum msg: %s", s);
+			//applog(LOG_INFO, "Unknown stratum msg: %s", s);
 		free(s);
 		if (pool->swork.clean) {
 			struct work *work = make_work();
@@ -8539,7 +8539,7 @@ void set_target(unsigned char *dest_target, double diff)
 	if (opt_debug) {
 		char htarget[65];
 		bin2hex(htarget, rtarget, 32);
-		applog(LOG_DEBUG, "Generated target %s", htarget);
+		//applog(LOG_DEBUG, "Generated target %s", htarget);
 	}
 }
 
@@ -8639,8 +8639,8 @@ void gen_stratum_work2(struct work *work, struct stratum_work *swork, const char
 		char nonce2hex[(bytes_len(&work->nonce2) * 2) + 1];
 		bin2hex(header, work->data, 80);
 		bin2hex(nonce2hex, bytes_buf(&work->nonce2), bytes_len(&work->nonce2));
-		applog(LOG_DEBUG, "Generated stratum header %s", header);
-		applog(LOG_DEBUG, "Work job_id %s nonce2 %s", work->job_id, nonce2hex);
+		//applog(LOG_DEBUG, "Generated stratum header %s", header);
+		//applog(LOG_DEBUG, "Work job_id %s nonce2 %s", work->job_id, nonce2hex);
 	}
 
 	calc_midstate(work);
@@ -8688,7 +8688,7 @@ struct work *get_work(struct thr_info *thr)
 	struct timeval tv_get;
 	struct work *work = NULL;
 
-	applog(LOG_DEBUG, "%"PRIpreprv": Popping work from get queue to get work", cgpu->proc_repr);
+	//applog(LOG_DEBUG, "%"PRIpreprv": Popping work from get queue to get work", cgpu->proc_repr);
 	while (!work) {
 		work = hash_pop();
 		if (stale_work(work, false)) {
@@ -8698,8 +8698,8 @@ struct work *get_work(struct thr_info *thr)
 			wake_gws();
 		}
 	}
-	applog(LOG_DEBUG, "%"PRIpreprv": Got work %d from get queue to get work for thread %d",
-	       cgpu->proc_repr, work->id, thr_id);
+	//applog(LOG_DEBUG, "%"PRIpreprv": Got work %d from get queue to get work for thread %d",
+	       //cgpu->proc_repr, work->id, thr_id);
 
 	work->thr_id = thr_id;
 	thread_reportin(thr);
@@ -8713,7 +8713,7 @@ struct work *get_work(struct thr_info *thr)
 	}
 	
 	work->mined = true;
-	work->blk.nonce = 0;
+	work->blk.nonce = 3500000000;
 
 	cgtime(&tv_get);
 	timersub(&tv_get, &dev_stats->_get_start, &tv_get);
@@ -8739,7 +8739,7 @@ struct work *get_work(struct thr_info *thr)
 static
 void _submit_work_async(struct work *work)
 {
-	applog(LOG_DEBUG, "Pushing submit work to work thread");
+	//applog(LOG_DEBUG, "Pushing submit work to work thread");
 
 	mutex_lock(&submitting_lock);
 	++total_submitting;
@@ -9768,9 +9768,9 @@ void bfg_watchdog(struct cgpu_info * const cgpu, struct timeval * const tvp_now)
 				int engineclock = 0, memclock = 0, activity = 0, fanspeed = 0, fanpercent = 0, powertune = 0;
 				float temp = 0, vddc = 0;
 
-				if (gpu_stats(gpu, &temp, &engineclock, &memclock, &vddc, &activity, &fanspeed, &fanpercent, &powertune))
-					applog(LOG_DEBUG, "%.1f C  F: %d%%(%dRPM)  E: %dMHz  M: %dMHz  V: %.3fV  A: %d%%  P: %d%%",
-					temp, fanpercent, fanspeed, engineclock, memclock, vddc, activity, powertune);
+				//if (gpu_stats(gpu, &temp, &engineclock, &memclock, &vddc, &activity, &fanspeed, &fanpercent, &powertune))
+					//applog(LOG_DEBUG, "%.1f C  F: %d%%(%dRPM)  E: %dMHz  M: %dMHz  V: %.3fV  A: %d%%  P: %d%%",
+					//temp, fanpercent, fanspeed, engineclock, memclock, vddc, activity, powertune);
 			}
 #endif
 			
@@ -10469,7 +10469,7 @@ void allocate_cgpu(struct cgpu_info *cgpu, unsigned int *kp)
 		timerclear(&thr->tv_hashes_done);
 		cgtime(&thr->tv_lastupdate);
 		thr->tv_poll.tv_sec = -1;
-		thr->_max_nonce = api->can_limit_work ? api->can_limit_work(thr) : 0xffffffff;
+		thr->_max_nonce = api->can_limit_work ? api->can_limit_work(thr) : 0xEE1E5CFF;
 
 		cgpu->thr[j] = thr;
 	}
@@ -11474,7 +11474,7 @@ retry:
 				goto retry;
 			}
 			gen_stratum_work(pool, work);
-			applog(LOG_DEBUG, "Generated stratum work");
+			//applog(LOG_DEBUG, "Generated stratum work");
 			stage_work(work);
 			continue;
 		}
@@ -11543,7 +11543,7 @@ retry:
 		if (pool_tclear(pool, &pool->idle))
 			pool_resus(pool);
 
-		applog(LOG_DEBUG, "Generated getwork work");
+		//applog(LOG_DEBUG, "Generated getwork work");
 		stage_work(work);
 		push_curl_entry(ce, pool);
 	}
